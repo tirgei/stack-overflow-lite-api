@@ -14,4 +14,7 @@ class User(Model):
             if key in user:
                 user.update({key: value})
 
+            if not hasattr(user, key):
+                user[key] = value
+            
         return user
