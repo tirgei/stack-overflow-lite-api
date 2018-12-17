@@ -53,3 +53,15 @@ def fetch_users():
         return jsonify({"status": 200, "data": users, "message": "no users found"}), 200
     else:
         return jsonify({"status": 200, "data": users}), 200
+
+@users.route('/users/<int:id>', methods=['PUT'])
+def update_user(id):
+    ''' Endpoint to update user information '''
+    data = request.get_json()
+
+    if not db.exists("id", id):
+        return jsonify({"status":400, "message": "No user with id {} found".format(id)}), 400
+
+    user = db.update(id, data)
+
+    return jsonify({"status": 200, "message": "user successfully updated", "data": user})
