@@ -41,6 +41,25 @@ class Model(object):
         returns true if atleast 1 item found '''
         return len(self.where(key, value)) > 0
 
+    def delete(self, id):
+        ''' Deletes item with given id from database '''
+        item = self.find(id)
+
+        if not item:
+            return None
+        else:
+            self.collection.remove(item)
+            return item
+    
+    def find(self, id):
+        '''Returns data item with id given, if data is not found, return None.'''
+
+        for item in self.collection:
+            if item['id'] == id:
+                return item
+
+        return None
+
     def __generate__id(self):
         ''' Generates ID for the new model '''
 

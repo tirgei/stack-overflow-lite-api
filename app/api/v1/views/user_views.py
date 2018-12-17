@@ -41,7 +41,7 @@ def register_user():
     data['password'] = generate_password_hash(password)
     db.save(data)
 
-    return jsonify({"status": 201, "message": "user successfully created"}), 201
+    return jsonify({"status": 201, "message": "User successfully created"}), 201
 
 @users.route('/users', methods=['GET'])
 def fetch_users():
@@ -50,7 +50,7 @@ def fetch_users():
     users = db.all()
 
     if len(users) == 0:
-        return jsonify({"status": 200, "data": users, "message": "no users found"}), 200
+        return jsonify({"status": 200, "data": users, "message": "No users found"}), 200
     else:
         return jsonify({"status": 200, "data": users}), 200
 
@@ -65,3 +65,14 @@ def update_user(id):
     user = db.update(id, data)
 
     return jsonify({"status": 200, "message": "user successfully updated", "data": user})
+
+@users.route('/users/<int:id>', methods=['DELETE'])
+def delete_account(id):
+    ''' Endpoint to delete account '''
+
+    user = db.delete(id)
+
+    if user:
+        return jsonify({"status": 200, "message" : "User successfully deleted"}), 200
+    else :
+        return jsonify({"status": 400, "message" : "No user with id {} found".format(id)}), 400
