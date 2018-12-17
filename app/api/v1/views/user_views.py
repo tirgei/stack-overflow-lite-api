@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash
 db = User()
 validate = Validators()
 auth = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
+users = Blueprint('users', __name__, url_prefix='/api/v1')
 
 @auth.route('/register', methods=['POST'])
 def register_user():
@@ -42,3 +43,13 @@ def register_user():
 
     return jsonify({"status": 201, "message": "user successfully created"}), 201
 
+@users.route('/users', methods=['GET'])
+def fetch_users():
+    ''' Endpoint to fetch all users '''
+
+    users = db.all()
+
+    if len(users) == 0:
+        return jsonify({"status": 200, "data": users, "message": "no users found"}), 200
+    else:
+        return jsonify({"status": 200, "data": users}), 200
