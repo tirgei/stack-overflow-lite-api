@@ -2,13 +2,12 @@ from app.api.utils.validators import Validators
 from app.api.v1.models.user_model import User
 from flask import jsonify, Blueprint, request, json
 from werkzeug.security import generate_password_hash
+from .. import version1 as v1
 
 db = User()
 validate = Validators()
-auth = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
-users = Blueprint('users', __name__, url_prefix='/api/v1')
 
-@auth.route('/register', methods=['POST'])
+@v1.route('/auth/register', methods=['POST'])
 def register_user():
     ''' Endpoint to register user '''
 
@@ -43,7 +42,7 @@ def register_user():
 
     return jsonify({"status": 201, "message": "User successfully created"}), 201
 
-@users.route('/users', methods=['GET'])
+@v1.route('/users', methods=['GET'])
 def fetch_users():
     ''' Endpoint to fetch all users '''
 
@@ -54,7 +53,7 @@ def fetch_users():
     else:
         return jsonify({"status": 200, "data": users}), 200
 
-@users.route('/users/<int:id>', methods=['PUT'])
+@v1.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
     ''' Endpoint to update user information '''
     data = request.get_json()
@@ -66,7 +65,7 @@ def update_user(id):
 
     return jsonify({"status": 200, "message": "user successfully updated", "data": user})
 
-@users.route('/users/<int:id>', methods=['DELETE'])
+@v1.route('/users/<int:id>', methods=['DELETE'])
 def delete_account(id):
     ''' Endpoint to delete account '''
 
