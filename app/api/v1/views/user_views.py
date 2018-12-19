@@ -1,13 +1,13 @@
 from app.api.utils.validators import Validators
 from app.api.v1.models.user_model import User
 from flask import jsonify, Blueprint, request, json
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from .. import version1 as v1
 
 db = User()
 validate = Validators()
 
-@v1.route('/auth/register', methods=['POST'])
+@v1.route('/auth/signup', methods=['POST'])
 def register_user():
     ''' Endpoint to register user '''
 
@@ -42,6 +42,44 @@ def register_user():
 
     return jsonify({"status": 201, "message": "User successfully created"}), 201
 
+
+@v1.route('/auth/login', methods=['POST'])
+def login():
+    """ Endpoint to login user """
+
+    data = request.get_json()
+
+    # Check if there's data in the request
+    if not data:
+        return jsonify({"status": 400, "message": "Please provide valid data"}), 400
+
+    # Check if all values have been entered
+    if not all(key in data for key in ["email", "password"]):
+        return jsonify({"status": 400, "message": "Please fill in all details"}), 400 
+
+    email = data['email']
+    password = data['password']
+
+     # Validate provided email
+    if not validate.valid_email(email):
+        return jsonify({"status": 400, "message": "Invalid email"}), 400
+
+    #Check if user with email exists
+    if not db.exists("email", email):
+        return jsonify({"status": 404, 'message': "User not found"}), 404
+
+    # Get the user with the provided email
+    user = db.where('email', email)[0]
+
+    # Check if the password is correct
+    if not check_password_hash(user['password'], password):
+        return jsonify({"status": 404, 'message': "Incorrect password"}), 404
+    
+    else:
+        token = db.generate_token(user['id'])
+        return jsonify({"status" : 200, "message" : "User successfully logged in", "token" : token.decode()}), 200
+
+
 @v1.route('/users', methods=['GET'])
 def fetch_users():
     ''' Endpoint to fetch all users '''
@@ -52,6 +90,7 @@ def fetch_users():
         return jsonify({"status": 200, "data": users, "message": "No users found"}), 200
     else:
         return jsonify({"status": 200, "data": users}), 200
+
 
 @v1.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
@@ -64,6 +103,7 @@ def update_user(id):
     user = db.update(id, data)
 
     return jsonify({"status": 200, "message": "user successfully updated", "data": user})
+
 
 @v1.route('/users/<int:id>', methods=['DELETE'])
 def delete_account(id):
