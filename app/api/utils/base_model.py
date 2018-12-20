@@ -1,3 +1,4 @@
+from datetime import datetime
 
 class Model(object):
     ''' Represents the base model that all models extend from '''
@@ -16,6 +17,7 @@ class Model(object):
         ''' Saves the new model to the list of items '''
         
         data['id'] = self.__generate__id()
+        data['created_on'] = datetime.now()
         self.collection.append(data)
 
     def where(self, key, value):
